@@ -1,243 +1,256 @@
 document.addEventListener("DOMContentLoaded", () => {
   const form = document.getElementById("form-producto");
   const mensaje = document.getElementById("mensaje");
-  const tablaUsuarios = document.querySelector("#tablaUsuarios tbody");
-  const tablaPedidos = document.querySelector("#tablaPedidos tbody");
-  const btnCerrar = document.getElementById("cerrarSesion");
-  const links = document.querySelectorAll(".nav-link");
-  const secciones = document.querySelectorAll(".seccion");
+  const tablaBody = document.querySelector("#tablaProductos tbody");
 
-  /* =========================================================
-     🔐 Protección del panel admin
-  ========================================================= */
-  const usuarioActivo = JSON.parse(localStorage.getItem("usuarioActivo"));
+  // ================================
+  // 🔁 Obtener productos (Room → AndroidProduct, o localStorage)
+  // ================================
+  function obtenerProductos() {
+    let productos = [];
 
-  if (!usuarioActivo) {
-    alert("⚠️ Debes iniciar sesión para acceder al panel.");
-    window.location.href = "login.html";
-    return;
-  }
-
-  if (usuarioActivo.rol !== "admin") {
-    alert("🚫 No tienes permisos para acceder al panel de administración.");
-    window.location.href = "tienda.html";
-    return;
-  }
-
-  /* =========================================================
-     🚪 Botón Cerrar Sesión
-  ========================================================= */
-  if (btnCerrar) {
-    btnCerrar.addEventListener("click", (e) => {
-      e.preventDefault();
-      localStorage.removeItem("usuarioActivo");
-      alert("👋 Sesión cerrada correctamente.");
-      window.location.href = "index.html";
-    });
-  }
-
-  /* =========================================================
-     🧭 Navegación entre secciones
-  ========================================================= */
-  links.forEach((link) => {
-    link.addEventListener("click", (e) => {
-      e.preventDefault();
-      links.forEach((l) => l.classList.remove("active"));
-      link.classList.add("active");
-      secciones.forEach((sec) => sec.classList.remove("visible"));
-      const id = link.getAttribute("data-section");
-      document.getElementById(id).classList.add("visible");
-    });
-  });
-
-  /* =========================================================
-     🛍️ Agregar y gestionar productos
-  ========================================================= */
-  if (form) {
-    const tablaProductos = document.querySelector("#tablaProductos tbody");
-
-    // 🧩 Normaliza productos antiguos
-    function normalizarProductos(productos) {
-      return productos.map((p, i) => ({
-        id: p.id || Date.now() + i,
-        nombre: p.nombre || "Sin nombre",
-        precio: p.precio || "0",
-        imagen: p.imagen || "",
-        categoria: p.categoria || "General",
-        stock: p.stock !== undefined ? p.stock : true,
-        destacado: p.destacado || false,
-      }));
+    // 1) Intentar leer desde Android (Room)
+    if (typeof AndroidProduct !== "undefined" && AndroidProduct.getProductsJson) {
+      try {
+        const json = AndroidProduct.getProductsJson();
+        productos = JSON.parse(json) || [];
+      } catch (e) {
+        console.error("Error leyendo productos desde AndroidProduct:", e);
+      }
     }
 
-    // ➕ Guardar producto nuevo
-    form.addEventListener("submit", (e) => {
-      e.preventDefault();
+    // 2) Si no estamos en la app o no hay datos, usar localStorage como fallback
+    if (!productos || productos.length === 0) {
+      try {
+        productos = JSON.parse(localStorage.getItem("productos")) || [];
+      } catch (e) {
+        productos = [];
+      }
+    }
 
-      const producto = {
+    return productos;
+  }
+
+  // ================================
+  // 💾 Guardar en localStorage (solo fallback)
+  // ================================
+  function guardarProductosEnLocal(productos) {
+    try {
+      localStorage.setItem("productos", JSON.stringify(productos));
+    } catch (e) {
+      console.error("Error guardando en localStorage:", e);
+    }
+  }
+
+  // ================================
+  // 📦 Renderizar tabla de productos
+  // ================================
+  function renderProductos() {
+    const productos = obtenerProductos();
+    tablaBody.innerHTML = "";
+
+    if (!productos || productos.length === 0) {
+      const tr = document.createElement("tr");
+      const td = document.createElement("td");
+      td.colSpan = 5;
+      td.textContent = "No hay productos registrados.";
+      td.style.textAlign = "center";
+      tablaBody.appendChild(tr);
+      tr.appendChild(td);
+      return;
+    }
+
+    productos.forEach((p) => {
+      const tr = document.createElement("tr");
+
+      const nombre = p.nombre || p.name || "Sin nombre";
+      const precio = p.precio != null ? p.precio : p.price;
+      const categoria = p.categoria || "-";
+      const stock = p.stock != null ? p.stock : 0;
+      const estado = stock > 0 ? "Disponible" : "Sin stock";
+
+      // Nombre
+      const tdNombre = document.createElement("td");
+      tdNombre.textContent = nombre;
+
+      // Precio
+      const tdPrecio = document.createElement("td");
+      tdPrecio.textContent = `$${parseInt(precio).toLocaleString("es-CL")}`;
+
+      // Categoría
+      const tdCategoria = document.createElement("td");
+      tdCategoria.textContent = categoria;
+
+      // Estado
+      const tdEstado = document.createElement("td");
+      tdEstado.textContent = estado;
+
+      // Acciones
+      const tdAcciones = document.createElement("td");
+      const btnEditar = document.createElement("button");
+      btnEditar.textContent = "Editar";
+      btnEditar.classList.add("btn-accion");
+
+      const btnEliminar = document.createElement("button");
+      btnEliminar.textContent = "Eliminar";
+      btnEliminar.classList.add("btn-accion", "btn-danger");
+
+      tdAcciones.appendChild(btnEditar);
+      tdAcciones.appendChild(btnEliminar);
+
+      tr.appendChild(tdNombre);
+      tr.appendChild(tdPrecio);
+      tr.appendChild(tdCategoria);
+      tr.appendChild(tdEstado);
+      tr.appendChild(tdAcciones);
+
+      tablaBody.appendChild(tr);
+
+      // 🟠 EDITAR
+      btnEditar.addEventListener("click", () => {
+        editarProductoAdmin(p);
+      });
+
+      // 🔴 ELIMINAR
+      btnEliminar.addEventListener("click", () => {
+        eliminarProductoAdmin(p, nombre);
+      });
+    });
+  }
+
+  // ================================
+  // 🟢 CREAR producto (submit form)
+  // ================================
+  form.addEventListener("submit", (e) => {
+    e.preventDefault();
+
+    const nombre = document.getElementById("nombre").value.trim();
+    const precio = parseFloat(document.getElementById("precio").value.trim());
+    const imagen = document.getElementById("imagen").value.trim();
+    const categoria = document.getElementById("categoria").value.trim();
+
+    if (!nombre || isNaN(precio) || !imagen || !categoria) {
+      mensaje.textContent = "Por favor completa todos los campos correctamente.";
+      mensaje.style.color = "tomato";
+      return;
+    }
+
+    // Stock fijo inicial (podrías agregar un campo si quieres)
+    const stockInicial = 10;
+
+    // Si estamos en la app Android con Room
+    if (typeof AndroidProduct !== "undefined" && AndroidProduct.createProduct) {
+      AndroidProduct.createProduct(nombre, precio, stockInicial, imagen);
+      mensaje.textContent = "Producto creado en la app (SQLite).";
+      mensaje.style.color = "lightgreen";
+    } else {
+      // Fallback: solo navegador → guardamos en localStorage
+      const productos = obtenerProductos();
+      const nuevo = {
         id: Date.now(),
-        nombre: document.getElementById("nombre").value.trim(),
-        precio: document.getElementById("precio").value.trim(),
-        imagen: document.getElementById("imagen").value.trim(),
-        categoria: document.getElementById("categoria").value.trim(),
-        stock: true,
+        nombre,
+        precio,
+        imagen,
+        categoria,
+        stock: stockInicial,
         destacado: false,
       };
+      productos.push(nuevo);
+      guardarProductosEnLocal(productos);
+      mensaje.textContent = "Producto guardado en localStorage (modo navegador).";
+      mensaje.style.color = "lightgreen";
+    }
 
-      if (!producto.nombre || !producto.precio || !producto.imagen || !producto.categoria) {
-        mensaje.textContent = "⚠️ Completa todos los campos.";
+    form.reset();
+    renderProductos();
+  });
+
+  // ================================
+  // ✏️ EDITAR producto
+  // ================================
+  function editarProductoAdmin(p) {
+    const nombreActual = p.nombre || p.name || "";
+    const precioActual = p.precio != null ? p.precio : p.price || 0;
+    const stockActual = p.stock != null ? p.stock : 0;
+    const imagenActual = p.imagen || p.imageUrl || "";
+
+    const nuevoNombre = prompt("Nuevo nombre:", nombreActual);
+    if (!nuevoNombre) return;
+
+    const nuevoPrecio = parseFloat(prompt("Nuevo precio:", precioActual));
+    if (isNaN(nuevoPrecio)) return;
+
+    const nuevoStock = parseInt(prompt("Nuevo stock:", stockActual));
+    if (isNaN(nuevoStock)) return;
+
+    const nuevaImagen = prompt("Nueva URL de imagen:", imagenActual) || "";
+
+    // En app Android → usar Room
+    if (typeof AndroidProduct !== "undefined" && AndroidProduct.updateProduct) {
+      if (p.id == null) {
+        alert("No se puede actualizar: el producto no tiene id.");
         return;
       }
-
-      let productos = JSON.parse(localStorage.getItem("productos")) || [];
-      productos = normalizarProductos(productos);
-      productos.push(producto);
-      localStorage.setItem("productos", JSON.stringify(productos));
-
-      mensaje.textContent = `✅ "${producto.nombre}" agregado correctamente.`;
-      form.reset();
-      renderProductos();
-    });
-
-    // 🧾 Renderizar tabla de productos (con data-label)
-    function renderProductos() {
-      let productos = JSON.parse(localStorage.getItem("productos")) || [];
-      productos = normalizarProductos(productos);
-      localStorage.setItem("productos", JSON.stringify(productos));
-
-      tablaProductos.innerHTML = "";
-
-      if (productos.length === 0) {
-        tablaProductos.innerHTML = `<tr><td colspan="6" style="text-align:center; color:#ccc;">No hay productos registrados.</td></tr>`;
-        return;
+      AndroidProduct.updateProduct(
+        p.id,
+        nuevoNombre,
+        nuevoPrecio,
+        nuevoStock,
+        nuevaImagen || null
+      );
+      alert("Producto actualizado en SQLite.");
+    } else {
+      // Fallback localStorage
+      const productos = obtenerProductos();
+      const idx = productos.findIndex((x) => x.id === p.id);
+      if (idx >= 0) {
+        productos[idx].nombre = nuevoNombre;
+        productos[idx].precio = nuevoPrecio;
+        productos[idx].stock = nuevoStock;
+        productos[idx].imagen = nuevaImagen;
+        guardarProductosEnLocal(productos);
       }
-
-      productos.forEach((p) => {
-        const fila = document.createElement("tr");
-        fila.innerHTML = `
-          <td data-label="Nombre">${p.nombre}</td>
-          <td data-label="Precio">$${parseInt(p.precio).toLocaleString("es-CL")}</td>
-          <td data-label="Categoría">${p.categoria}</td>
-          <td data-label="Estado">${p.stock ? "✅ En stock" : "❌ Sin stock"}</td>
-          <td data-label="Destacado">${p.destacado ? "🌟 Sí" : "—"}</td>
-          <td data-label="Acciones">
-            <button class="btn-stock" data-id="${p.id}" title="Cambiar stock">
-              <i class="fas fa-sync-alt"></i>
-            </button>
-            <button class="btn-destacar ${p.destacado ? "destacado" : ""}" data-id="${p.id}" title="Marcar como destacado">
-              <i class="fas fa-star"></i>
-            </button>
-            <button class="btn-eliminar" data-id="${p.id}" title="Eliminar producto">
-              <i class="fas fa-trash-alt"></i>
-            </button>
-          </td>
-        `;
-        tablaProductos.appendChild(fila);
-      });
-
-      // ⚙️ Botones de acción
-      document.querySelectorAll(".btn-stock").forEach((btn) => {
-        btn.addEventListener("click", (e) => toggleStock(parseInt(e.currentTarget.dataset.id)));
-      });
-
-      document.querySelectorAll(".btn-destacar").forEach((btn) => {
-        btn.addEventListener("click", (e) => toggleDestacado(parseInt(e.currentTarget.dataset.id)));
-      });
-
-      document.querySelectorAll(".btn-eliminar").forEach((btn) => {
-        btn.addEventListener("click", (e) => eliminarProducto(parseInt(e.currentTarget.dataset.id)));
-      });
-    }
-
-    // 🔄 Cambiar estado de stock
-    function toggleStock(id) {
-      let productos = JSON.parse(localStorage.getItem("productos")) || [];
-      const index = productos.findIndex((p) => p.id === id);
-      if (index !== -1) {
-        productos[index].stock = !productos[index].stock;
-        localStorage.setItem("productos", JSON.stringify(productos));
-        renderProductos();
-      }
-    }
-
-    // 🌟 Marcar o desmarcar como destacado
-    function toggleDestacado(id) {
-      let productos = JSON.parse(localStorage.getItem("productos")) || [];
-      const index = productos.findIndex((p) => p.id === id);
-      if (index !== -1) {
-        productos[index].destacado = !productos[index].destacado;
-        localStorage.setItem("productos", JSON.stringify(productos));
-
-        const boton = document.querySelector(`.btn-destacar[data-id="${id}"] i`);
-        if (boton) {
-          boton.style.transform = "scale(1.4)";
-          boton.style.transition = "transform 0.2s ease";
-          setTimeout(() => (boton.style.transform = "scale(1)"), 200);
-        }
-
-        renderProductos();
-      }
-    }
-
-    // 🗑️ Eliminar producto
-    function eliminarProducto(id) {
-      if (!confirm("¿Seguro que deseas eliminar este producto?")) return;
-      let productos = JSON.parse(localStorage.getItem("productos")) || [];
-      productos = productos.filter((p) => p.id !== id);
-      localStorage.setItem("productos", JSON.stringify(productos));
-      renderProductos();
     }
 
     renderProductos();
   }
 
-  /* =========================================================
-     👥 Mostrar usuarios registrados
-  ========================================================= */
-  if (tablaUsuarios) {
-    const usuarios = JSON.parse(localStorage.getItem("usuariosRegistrados")) || [];
+  // ================================
+  // 🗑️ ELIMINAR producto
+  // ================================
+  function eliminarProductoAdmin(p, nombreMostrar) {
+    const nombre = nombreMostrar || p.nombre || p.name || "este producto";
+    if (!confirm(`¿Eliminar "${nombre}"?`)) return;
 
-    if (usuarios.length === 0) {
-      tablaUsuarios.innerHTML = `<tr><td colspan="5" style="text-align:center; color:#ccc;">No hay usuarios registrados.</td></tr>`;
+    if (typeof AndroidProduct !== "undefined" && AndroidProduct.deleteProduct) {
+      if (p.id == null) {
+        alert("No se puede eliminar: el producto no tiene id.");
+        return;
+      }
+      AndroidProduct.deleteProduct(p.id);
+      alert("Producto eliminado de SQLite.");
     } else {
-      usuarios.forEach((u) => {
-        const fila = document.createElement("tr");
-        fila.innerHTML = `
-          <td data-label="Nombre">${u.nombre || "-"}</td>
-          <td data-label="Correo">${u.correo || "-"}</td>
-          <td data-label="Usuario">${u.usuario || "-"}</td>
-          <td data-label="Fecha Nac.">${u.nacimiento || "-"}</td>
-          <td data-label="Registro">${u.fechaRegistro || "-"}</td>
-        `;
-        tablaUsuarios.appendChild(fila);
-      });
+      // Fallback localStorage
+      let productos = obtenerProductos();
+      productos = productos.filter((x) => x.id !== p.id);
+      guardarProductosEnLocal(productos);
     }
+
+    renderProductos();
   }
 
-  /* =========================================================
-     📦 Mostrar pedidos recibidos
-  ========================================================= */
-  if (tablaPedidos) {
-    const pedidos = JSON.parse(localStorage.getItem("pedidos")) || [];
-
-    if (pedidos.length === 0) {
-      tablaPedidos.innerHTML = `<tr><td colspan="6" style="text-align:center; color:#ccc;">No hay pedidos todavía.</td></tr>`;
-    } else {
-      pedidos.forEach((p) => {
-        const fila = document.createElement("tr");
-        const productosLista = p.productos
-          .map((prod) => `${prod.nombre} ($${parseInt(prod.precio).toLocaleString("es-CL")})`)
-          .join("<br>");
-
-        fila.innerHTML = `
-          <td data-label="ID">${p.id}</td>
-          <td data-label="Usuario">${p.usuario.nombre}</td>
-          <td data-label="Correo">${p.usuario.correo}</td>
-          <td data-label="Total">$${p.total.toLocaleString("es-CL")}</td>
-          <td data-label="Fecha">${p.fecha}</td>
-          <td data-label="Productos">${productosLista}</td>
-        `;
-        tablaPedidos.appendChild(fila);
-      });
-    }
+  // ================================
+  // Cerrar sesión (si lo quieres usar)
+  // ================================
+  const btnCerrarSesion = document.getElementById("cerrarSesion");
+  if (btnCerrarSesion) {
+    btnCerrarSesion.addEventListener("click", (e) => {
+      e.preventDefault();
+      // Aquí podrías limpiar storage o mandar de vuelta al login
+      alert("Sesión cerrada (puedes conectar esto con tu LoginActivity).");
+    });
   }
+
+  // Inicializar tabla
+  renderProductos();
 });

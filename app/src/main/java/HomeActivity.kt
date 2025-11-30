@@ -7,6 +7,7 @@ import android.os.Bundle
 import android.view.Gravity
 import android.widget.*
 import androidx.activity.ComponentActivity
+import com.example.tiendamanga.ProductListActivity
 
 class HomeActivity : ComponentActivity() {
 
@@ -70,6 +71,7 @@ class HomeActivity : ComponentActivity() {
         val btnApi = createButton("Ver productos")
         val btnTiendas = createButton("Ver tiendas")
         val btnLogout = createButton("Cerrar sesión")
+        val btnSqlite = createButton("Ver productos SQLite")
 
         // Agregar vistas
         layout.addView(logo)
@@ -81,6 +83,7 @@ class HomeActivity : ComponentActivity() {
         layout.addView(btnApi)
         layout.addView(btnTiendas)
         layout.addView(btnLogout)
+        layout.addView(btnSqlite)
 
         setContentView(layout)
 
@@ -89,6 +92,9 @@ class HomeActivity : ComponentActivity() {
         btnCamara.setOnClickListener { startActivity(Intent(this, CameraActivity::class.java)) }
         btnApi.setOnClickListener { startActivity(Intent(this, ApiActivity::class.java)) }
         btnTiendas.setOnClickListener { startActivity(Intent(this, StoresActivity::class.java)) }
+        btnSqlite.setOnClickListener {
+            startActivity(Intent(this, ProductListActivity::class.java))
+        }
         btnLogout.setOnClickListener {
             getSharedPreferences("tiendamanga", MODE_PRIVATE)
                 .edit().putBoolean("logged_in", false).apply()
