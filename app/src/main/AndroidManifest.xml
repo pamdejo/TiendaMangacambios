@@ -2,6 +2,10 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.example.tiendamanga">
 
+    <uses-feature
+        android:name="android.hardware.camera"
+        android:required="false" />
+
     <uses-permission android:name="android.permission.INTERNET"/>
     <uses-permission android:name="android.permission.CAMERA"/>
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" android:maxSdkVersion="28"/>
@@ -29,10 +33,10 @@
         <activity android:name=".MainActivity" />
         <activity android:name=".CameraActivity" />
         <activity android:name=".ApiActivity" />
+        <activity android:name=".ProductListActivity" />
 
     </application>
 </manifest>
-
 
 
 
