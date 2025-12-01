@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tienda - Manga Zone</title>
+
+  <!-- Estilos -->
+  <link rel="stylesheet" href="css/tienda.css">
+  <link href="https://fonts.googleapis.com/css2?family=Bangers&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+<body>
+<!-- 🔹 Header -->
+<header class="header">
+  <div class="logo-container">
+    <img src="img/logo1.png" alt="Logo Manga Zone" class="logo">
+  </div>
+
+  <!-- ✅ Botón hamburguesa -->
+  <div class="menu-toggle" id="menuToggle">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+
+  <!-- ✅ Menú de navegación -->
+  <nav class="nav" id="navMenu">
+    <ul>
+      <li><a href="index.html">Inicio</a></li>
+      <li><a href="tienda.html" class="active">Tienda</a></li>
+      <li><a href="#">Novedades</a></li>
+      <li><a href="#">Blog</a></li>
+      <li><a href="#">Contacto</a></li>
+    </ul>
+  </nav>
+
+  <!-- ✅ Íconos -->
+  <div class="icons">
+    <a href="carrito.html" class="cart-icon">
+      <i class="fas fa-shopping-cart"></i>
+      <span id="cart-count">0</span>
+    </a>
+    <a href="login.html"><i class="fas fa-user"></i></a>
+  </div>
+</header>
+
+<!-- 🔹 Contenido principal -->
+<main class="productos">
+  <h2>Catálogo de Productos</h2>
+
+  <!-- 🔍 Barra de búsqueda -->
+  <div class="busqueda-container">
+    <input type="text" id="busqueda" placeholder="Buscar manga por nombre o categoría...">
+    <i class="fas fa-search"></i>
+  </div>
+
+  <!-- 🛒 Contenedor de productos -->
+  <div class="grid" id="contenedor-productos"></div>
+</main>
+
+<!-- =========================================================
+     📜 SCRIPTS
+========================================================= -->
+<!-- ✅ Script global para el menú -->
+<script src="js/menu.js" defer></script>
+
+<!-- ✅ Script específico de esta página -->
+<script src="js/tienda.js" defer></script>
+</body>
+</html>

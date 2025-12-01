@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Panel Admin - Manga Zone</title>
+
+  <!-- Estilos -->
+  <link rel="stylesheet" href="css/admin.css">
+  <link href="https://fonts.googleapis.com/css2?family=Bangers&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+
+<body>
+<!-- 🔹 HEADER -->
+<header class="admin-header">
+  <div class="logo-container">
+    <img src="img/logo1.png" alt="Logo Manga Zone" class="logo-admin">
+    <h1>Panel de Administración</h1>
+  </div>
+
+  <!-- ✅ Botón hamburguesa -->
+  <div class="menu-toggle" id="menuToggle">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+
+  <nav class="nav-admin" id="navMenu">
+    <ul>
+      <li><a href="#" class="nav-link active" data-section="productos"><i class="fas fa-box"></i> Productos</a></li>
+      <li><a href="#" class="nav-link" data-section="usuarios"><i class="fas fa-users"></i> Usuarios</a></li>
+      <li><a href="#" class="nav-link" data-section="pedidos"><i class="fas fa-clipboard-list"></i> Pedidos</a></li>
+      <li><a href="tienda.html"><i class="fas fa-store"></i> Tienda</a></li>
+      <li><a href="#" id="cerrarSesion"><i class="fas fa-sign-out-alt"></i> Cerrar Sesión</a></li>
+    </ul>
+  </nav>
+</header>
+
+<!-- 🔸 CONTENIDO PRINCIPAL -->
+<main class="admin-main">
+  <!-- 🛒 PRODUCTOS -->
+  <section id="productos" class="seccion visible">
+    <h2>🛒 Agregar nuevo producto</h2>
+    <form id="form-producto">
+      <input type="text" id="nombre" placeholder="Nombre del manga" required>
+      <input type="text" id="precio" placeholder="Precio (ej: 8990)" required>
+      <input type="text" id="imagen" placeholder="Ruta de imagen (ej: img/manga1.jpg)" required>
+      <input type="text" id="categoria" placeholder="Categoría (Shonen, Seinen...)" required>
+      <button type="submit">Guardar producto</button>
+    </form>
+    <p id="mensaje"></p>
+
+    <div class="lista-productos-admin">
+      <h3>📦 Productos registrados</h3>
+      <table id="tablaProductos">
+        <thead>
+        <tr>
+          <th>Nombre</th>
+          <th>Precio</th>
+          <th>Categoría</th>
+          <th>Estado</th>
+          <th>Acciones</th>
+        </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- 👥 USUARIOS -->
+  <section id="usuarios" class="seccion">
+    <h2>👥 Usuarios registrados</h2>
+    <table id="tablaUsuarios">
+      <thead>
+      <tr>
+        <th>Nombre</th>
+        <th>Correo</th>
+        <th>Usuario</th>
+        <th>Fecha Nac.</th>
+        <th>Registro</th>
+      </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </section>
+
+  <!-- 📦 PEDIDOS -->
+  <section id="pedidos" class="seccion">
+    <h2>📦 Pedidos recibidos</h2>
+    <table id="tablaPedidos">
+      <thead>
+      <tr>
+        <th>ID</th>
+        <th>Usuario</th>
+        <th>Correo</th>
+        <th>Total</th>
+        <th>Fecha</th>
+        <th>Productos</th>
+      </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </section>
+</main>
+
+<!-- 🔸 SCRIPTS -->
+<script src="js/menu.js" defer></script>
+<script src="js/admin.js" defer></script>
+</body>
+</html>

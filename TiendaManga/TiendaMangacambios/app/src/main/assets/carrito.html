@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Carrito - Manga Zone</title>
+
+  <!-- Estilos -->
+  <link rel="stylesheet" href="css/index.css" />
+  <link rel="stylesheet" href="css/carrito.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Bangers&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+</head>
+
+<body>
+<!-- 🔹 Header -->
+<header class="header">
+  <div class="logo-container">
+    <img src="img/logo1.png" alt="Logo Manga Zone" class="logo" />
+  </div>
+
+  <!-- ✅ Botón hamburguesa -->
+  <div class="menu-toggle" id="menuToggle">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+
+  <!-- ✅ Menú de navegación -->
+  <nav class="nav" id="navMenu">
+    <ul>
+      <li><a href="index.html">Inicio</a></li>
+      <li><a href="tienda.html">Tienda</a></li>
+      <li><a href="#">Novedades</a></li>
+      <li><a href="#">Blog</a></li>
+      <li><a href="#">Contacto</a></li>
+    </ul>
+  </nav>
+
+  <!-- ✅ Íconos -->
+  <div class="icons">
+    <a href="tienda.html"><i class="fas fa-search"></i></a>
+    <a href="carrito.html" class="cart-icon">
+      <i class="fas fa-shopping-cart"></i>
+      <span id="cart-count">0</span>
+    </a>
+    <a href="login.html" id="userIcon"><i class="fas fa-user"></i></a>
+  </div>
+</header>
+
+<!-- 🔹 Contenido principal -->
+<main class="carrito-main" style="margin-top:120px;">
+  <h2>🛍️ Tu Carrito de Compras</h2>
+
+  <div id="lista-carrito" class="carrito-lista"></div>
+
+  <div class="carrito-total">
+    <h3>Total: <span id="total">$0</span></h3>
+    <div class="botones-carrito">
+      <button id="finalizarCompra" class="btn-finalizar">Finalizar Compra</button>
+      <button id="vaciarCarrito" class="btn-vaciar">Vaciar Carrito</button>
+    </div>
+  </div>
+</main>
+
+<!-- =========================================================
+     📜 SCRIPTS
+========================================================= -->
+<!-- ✅ Script global del menú -->
+<script src="js/menu.js" defer></script>
+
+<!-- ✅ Script del carrito -->
+<script src="js/carrito.js" defer></script>
+</body>
+</html>

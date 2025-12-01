@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Iniciar Sesión / Registro - Manga Zone</title>
+
+  <!-- Fuentes y estilos -->
+  <link href="https://fonts.googleapis.com/css2?family=Bangers&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <link rel="stylesheet" href="css/login.css">
+  <link rel="stylesheet" href="css/menu.css">
+</head>
+<body>
+
+<!-- 🔙 Botón Volver -->
+<a href="index.html" class="back-btn">
+  <i class="fas fa-arrow-left"></i>
+</a>
+
+<div class="container">
+  <div class="form-box">
+    <h1 id="formTitle">Iniciar Sesión</h1>
+
+    <!-- 🟣 Formulario de inicio -->
+    <form id="loginForm" class="active">
+      <input type="email" placeholder="Correo electrónico" required />
+      <input type="password" placeholder="Contraseña" required />
+      <button type="submit" class="btn">Entrar</button>
+      <p class="switch">¿No tienes cuenta? <a href="#" id="goRegister">Regístrate</a></p>
+    </form>
+
+    <!-- 🟣 Formulario de registro -->
+    <form id="registerForm">
+      <input type="text" placeholder="Nombre completo" required />
+      <input type="email" placeholder="Correo electrónico" required />
+      <input type="password" placeholder="Contraseña" required />
+      <input type="date" placeholder="Fecha de nacimiento" required />
+      <input type="text" placeholder="Nombre de usuario" required />
+      <button type="submit" class="btn">Registrarse</button>
+      <p class="switch">¿Ya tienes cuenta? <a href="#" id="goLogin">Inicia sesión</a></p>
+    </form>
+  </div>
+</div>
+
+<script src="js/login.js"></script>
+</body>
+</html>

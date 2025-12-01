@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Manga Zone</title>
+
+  <!-- Estilos -->
+  <link rel="stylesheet" href="css/index.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Bangers&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+
+  <style>
+    html { scroll-behavior: smooth; }
+
+    /* ---------- FIXES CRÍTICOS DEL MENÚ ---------- */
+    /* Pila de capas: botón > overlay menú > header > contenido */
+    .header { z-index: 2000; }
+    .menu-toggle { z-index: 3001 !important; position: absolute; right: 16px; top: 50%; transform: translateY(-50%); }
+    .nav { z-index: 3000 !important; }
+
+    /* Asegura que el <ul> se vea al abrir */
+    @media (max-width: 1024px) {
+      .nav ul { display: none; }
+      .nav.open ul { display: flex !important; }
+    }
+
+    /* Accesibilidad visual del botón cuando está en “X” */
+    .menu-toggle.active span:nth-child(1){ transform: rotate(45deg) translate(4px, 5px); }
+    .menu-toggle.active span:nth-child(2){ opacity: 0; }
+    .menu-toggle.active span:nth-child(3){ transform: rotate(-45deg) translate(5px, -6px); }
+  </style>
+</head>
+<body>
+<!-- 🔹 Header -->
+<header class="header">
+  <div class="logo-container">
+    <img src="img/logo1.png" alt="Logo Manga Zone" class="logo" />
+  </div>
+
+  <!-- ✅ Botón hamburguesa (móvil y tablet) -->
+  <button class="menu-toggle" id="menuToggle" aria-label="Abrir menú" aria-expanded="false">
+    <span></span>
+    <span></span>
+    <span></span>
+  </button>
+
+  <!-- ✅ Menú de navegación -->
+  <nav class="nav" id="navMenu" aria-hidden="true">
+    <ul>
+      <li><a href="#" class="active">Inicio</a></li>
+      <li><a href="tienda.html">Tienda</a></li>
+      <li><a href="#">Novedades</a></li>
+      <li><a href="#">Blog</a></li>
+      <li><a href="#">Contacto</a></li>
+    </ul>
+  </nav>
+
+  <!-- ✅ Íconos -->
+  <div class="icons">
+    <a href="#"><i class="fas fa-search"></i></a>
+    <a href="carrito.html" class="cart-icon">
+      <i class="fas fa-shopping-cart"></i><span id="cart-count">0</span>
+    </a>
+    <a href="#" id="userIcon"><i class="fas fa-user"></i></a>
+  </div>
+</header>
+
+<!-- 🔸 Contenido principal -->
+<main>
+  <!-- Hero -->
+  <section class="hero">
+    <div class="hero-text">
+      <h1>Descubre tu próximo manga favorito</h1>
+      <p>Las mejores historias, directo desde Japón a tu colección.</p>
+      <a href="tienda.html" class="btn">Ver Tienda</a>
+    </div>
+  </section>
+
+  <!-- Banner -->
+  <section class="banner-evento">
+    <div class="banner-contenido">
+      <h2>¡Nuevo tomo de <span>Chainsawman</span> disponible!</h2>
+      <p>Consíguelo antes de que se agote — edición limitada exclusiva 🩸</p>
+      <a href="#tienda" class="btn-banner">Ver producto</a>
+    </div>
+  </section>
+
+  <!-- Categorías -->
+  <section class="categorias">
+    <h2>Categorías Populares</h2>
+    <div class="cards">
+      <div class="card">Shonen</div>
+      <div class="card">Shojo</div>
+      <div class="card">Seinen</div>
+      <div class="card">Ediciones Limitadas</div>
+    </div>
+  </section>
+
+  <!-- Productos destacados -->
+  <section class="productos">
+    <h2>Últimos Lanzamientos</h2>
+    <div class="grid" id="destacadosGrid">
+      <!-- Se cargan automáticamente desde JS -->
+    </div>
+  </section>
+
+  <!-- Promociones -->
+  <section class="promo">
+    <h2>🔥 Ofertas de la Semana 🔥</h2>
+    <p>Hasta 30% de descuento en colecciones seleccionadas.</p>
+  </section>
+
+  <!-- Sobre Nosotros -->
+  <section class="sobre-nosotros">
+    <h2>Sobre Nosotros</h2>
+    <p>
+      En Manga Zone, somos apasionados del manga y el anime. Nuestra misión es traer las mejores historias directamente a tus manos, ofreciendo una amplia selección de títulos para todos los gustos.
+    </p>
+  </section>
+</main>
+
+<!-- Footer -->
+<footer class="footer">
+  <p>© 2025 Manga Zone. Todos los derechos reservados.</p>
+</footer>
+
+<!-- =========================================================
+     📜 SCRIPTS
+========================================================= -->
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    /* =========================================================
+       📱 MENÚ MÓVIL FULL SCREEN
+    ========================================================= */
+    const menuToggle = document.getElementById("menuToggle");
+    const navMenu = document.getElementById("navMenu");
+    const body = document.body;
+
+    if (menuToggle && navMenu) {
+      const toggleMenu = () => {
+        const isOpen = navMenu.classList.toggle("open");
+        menuToggle.classList.toggle("active", isOpen);
+        body.classList.toggle("no-scroll", isOpen);
+        menuToggle.setAttribute("aria-expanded", isOpen ? "true" : "false");
+        navMenu.setAttribute("aria-hidden", isOpen ? "false" : "true");
+      };
+
+      menuToggle.addEventListener("click", toggleMenu);
+
+      // Cierra el menú al hacer clic en un enlace
+      navMenu.querySelectorAll("a").forEach((link) => {
+        link.addEventListener("click", () => {
+          if (navMenu.classList.contains("open")) toggleMenu();
+        });
+      });
+    }
+
+    /* =========================================================
+       🌟 PRODUCTOS DESTACADOS (Cargados desde localStorage)
+    ========================================================= */
+    const grid = document.getElementById("destacadosGrid");
+    if (grid) {
+      const productos = JSON.parse(localStorage.getItem("productos")) || [];
+
+      // ✅ Elimina duplicados (por id o nombre)
+      const vistos = new Set();
+      const unicos = productos.filter(p => {
+        const key = (p.id ?? p.nombre ?? "").toString().toLowerCase();
+        if (!key) return false;
+        if (vistos.has(key)) return false;
+        vistos.add(key);
+        return true;
+      });
+
+      const destacados = unicos.filter(p => p.destacado && p.stock);
+
+      grid.innerHTML = destacados.length
+        ? destacados.map(p => `
+            <div class="producto-card">
+              <div class="producto-img">
+                <img src="${p.imagen}" alt="${p.nombre}">
+              </div>
+              <div class="producto-info">
+                <h3>${p.nombre}</h3>
+                <p class="categoria">${p.categoria}</p>
+                <p class="precio">$${parseInt(p.precio).toLocaleString("es-CL")}</p>
+                <a href="tienda.html" class="btn-ver">Ver producto</a>
+              </div>
+            </div>
+          `).join("")
+        : `<p style="color:#ccc; text-align:center;">No hay lanzamientos destacados por ahora.</p>`;
+    }
+
+    /* =========================================================
+       🎬 ANIMACIÓN DEL BANNER
+    ========================================================= */
+    const banner = document.querySelector(".banner-evento");
+    if (banner) {
+      const observer = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              banner.classList.add("visible");
+              observer.unobserve(banner);
+            }
+          });
+        },
+        { threshold: 0.3 }
+      );
+      observer.observe(banner);
+    }
+  });
+</script>
+
+<!-- ✅ Solo si lo necesitas para otras cosas. Evita duplicar lógica del menú aquí -->
+<script src="js/sesion.js" defer></script>
+<!-- <script src="js/index.js" defer></script> -->
+</body>
+</html>

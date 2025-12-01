@@ -1,0 +1,18 @@
+[
+  { "id": 1,  "nombre": "Blue Period 16", "precio": 10990, "imagen": "img/blueperiod16.webp", "stock": 8,  "destacado": true,  "categoria": "Seinen" },
+  { "id": 2,  "nombre": "Boku no Hero 42", "precio": 9990, "imagen": "img/bokunohero42.webp", "stock": 12, "destacado": true,  "categoria": "Shonen" },
+  { "id": 3,  "nombre": "Chainsaw Man 12", "precio": 9990, "imagen": "img/chainsaw12.webp", "stock": 6,  "destacado": false, "categoria": "Shonen" },
+  { "id": 4,  "nombre": "Jujutsu Kaisen 25", "precio": 10990, "imagen": "img/jujutsu25.webp", "stock": 10, "destacado": true,  "categoria": "Shonen" },
+  { "id": 5,  "nombre": "One Piece 105", "precio": 10990, "imagen": "img/onepiece105.webp", "stock": 15, "destacado": true,  "categoria": "Shonen" },
+  { "id": 6,  "nombre": "Spy x Family 11", "precio": 9990, "imagen": "img/spyxfamily11.webp", "stock": 5,  "destacado": false, "categoria": "Shonen" },
+  { "id": 7,  "nombre": "Tokyo Revengers 14", "precio": 9490, "imagen": "img/tokyorev14.webp", "stock": 7,  "destacado": false, "categoria": "Shonen" },
+  { "id": 8,  "nombre": "Haikyu!! 20", "precio": 8990, "imagen": "img/haikyuu20.webp", "stock": 9,  "destacado": false, "categoria": "Shonen" },
+  { "id": 9,  "nombre": "Demon Slayer 19", "precio": 9990, "imagen": "img/demonslayer19.webp", "stock": 11, "destacado": true,  "categoria": "Shonen" },
+  { "id": 10, "nombre": "Oshi no Ko 6", "precio": 9490, "imagen": "img/oshinoko6.webp", "stock": 4,  "destacado": false, "categoria": "Seinen" },
+  { "id": 11, "nombre": "Naruto (Ed. Kazenban) 5", "precio": 12990, "imagen": "img/naruto_kz5.webp", "stock": 3,  "destacado": true,  "categoria": "Shonen" },
+  { "id": 12, "nombre": "Attack on Titan 31", "precio": 10990, "imagen": "img/aot31.webp", "stock": 6,  "destacado": false, "categoria": "Seinen" },
+  { "id": 13, "nombre": "Vagabond (Vizbig) 2", "precio": 19990, "imagen": "img/vagabond_viz2.webp", "stock": 2,  "destacado": true,  "categoria": "Seinen" },
+  { "id": 14, "nombre": "Nana 1", "precio": 8990, "imagen": "img/nana1.webp", "stock": 8,  "destacado": false, "categoria": "Shojo" },
+  { "id": 15, "nombre": "Frieren 7", "precio": 10990, "imagen": "img/frieren7.webp", "stock": 5,  "destacado": true,  "categoria": "Shonen" },
+  { "id": 16, "nombre": "Solo Leveling 4", "precio": 10990, "imagen": "img/sololeveling4.webp", "stock": 6,  "destacado": false, "categoria": "Manhwa" }
+]
