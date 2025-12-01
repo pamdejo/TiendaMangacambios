@@ -54,7 +54,7 @@ class LoginActivity : ComponentActivity() {
             return
         }
 
-        // CONFIGURAR GOOGLE SIGN-IN
+        // CONFIGURAR GOOGLE SIGN-IN (pendiente)
         val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
             .requestEmail()
             .build()
