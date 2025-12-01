@@ -114,8 +114,10 @@ class HomeActivity : ComponentActivity() {
         }
 
         btnLogout.setOnClickListener {
-            getSharedPreferences("tiendamanga", MODE_PRIVATE)
-                .edit().putBoolean("logged_in", false).apply()
+            val prefs = getSharedPreferences("tiendamanga_login", MODE_PRIVATE)
+            prefs.edit().clear().apply()
+
+            // (Completas la config de Google)
             startActivity(Intent(this, LoginActivity::class.java))
             finish()
         }
