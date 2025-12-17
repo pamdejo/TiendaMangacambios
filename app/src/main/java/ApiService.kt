@@ -1,5 +1,9 @@
 package com.example.tiendamanga
 
+
+import okhttp3.OkHttpClient
+import okhttp3.logging.HttpLoggingInterceptor
+import retrofit2.http.Query
 import android.content.Context
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
@@ -40,24 +44,31 @@ interface ApiService {
 
     @PUT("api/products/{id}")
     suspend fun updateProduct(
-        @Path("id") id: Int,
+        @Query("id") id: Int,
         @Body body: ProductCreateDTO
     ): ProductDTO
 
     @DELETE("api/products/{id}")
     suspend fun deleteProduct(
-        @Path("id") id: Int
+        @Query("id") id: Int
     )
 }
 
 
 fun provideApi(context: Context): ApiService {
-    val client = okhttp3.OkHttpClient.Builder()
-        .addInterceptor(AssetsInterceptor(context))
+
+    val baseUrl = "http://10.0.2.2/tienda_api/"  // ✅ NO localhost
+
+    val logger = HttpLoggingInterceptor().apply {
+        level = HttpLoggingInterceptor.Level.BODY
+    }
+
+    val client = OkHttpClient.Builder()
+        .addInterceptor(logger)
         .build()
 
     return Retrofit.Builder()
-        .baseUrl("http://localhost/")
+        .baseUrl(baseUrl)
         .client(client)
         .addConverterFactory(GsonConverterFactory.create())
         .build()

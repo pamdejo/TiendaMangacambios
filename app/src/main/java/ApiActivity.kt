@@ -13,14 +13,12 @@ import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.launch
 
 class ApiActivity : ComponentActivity() {
-
     private lateinit var listView: ListView
     private lateinit var adapter: ProductsAdapter
     private var allItems: List<ProductDTO> = emptyList()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
 
         val bg = Color.parseColor("#0E0B12")
         val accent = Color.parseColor("#B97AFF")
@@ -111,14 +109,22 @@ class ApiActivity : ComponentActivity() {
 
         setContentView(root)
 
-
         val api = provideApi(this)
-        lifecycleScope.launch {
-            try {
-                allItems = api.getProducts()
+
+        suspend fun refresh() {
+            allItems = api.getProducts()
+            if (!::adapter.isInitialized) {
                 adapter = ProductsAdapter(allItems.toMutableList())
                 listView.adapter = adapter
-                lblCount.text = "Total: ${allItems.size}"
+            } else {
+                adapter.update(allItems)
+            }
+            lblCount.text = "Total: ${allItems.size}"
+        }
+
+        lifecycleScope.launch {
+            try {
+                refresh()
             } catch (e: Exception) {
                 Toast.makeText(this@ApiActivity, "Error: ${e.message}", Toast.LENGTH_LONG).show()
             }

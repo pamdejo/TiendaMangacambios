@@ -1,96 +1,148 @@
 document.addEventListener("DOMContentLoaded", () => {
+  const API_URL = "http://10.0.2.2/tienda_api/products.php";
+
   const contenedor = document.getElementById("contenedor-productos");
   const inputBusqueda = document.getElementById("busqueda");
 
-  let productos = []; // productos normalizados
+  let productos = [];
 
-  // Normalizar producto: convierte lo que venga (Room / localStorage) al formato estándar
   function normalizarProducto(p) {
     const precioRaw = p.precio ?? p.price ?? 0;
-
     return {
-      // nombre: "nombre" (Room usa name)
+      id: Number(p.id ?? 0),
       nombre: p.nombre || p.name || "Producto sin nombre",
-      // precio: número
       precio: Number(precioRaw) || 0,
-      // imagen: "imagen" (Room usa imageUrl)
       imagen: p.imagen || p.imageUrl || "img/placeholder.png",
-      // categoria: "categoria" (Room puede usar category)
       categoria: p.categoria || p.category || "Sin categoría",
-      // stock por si lo quieres usar después
-      stock: p.stock ?? p.quantity ?? 0,
+      stock: Number(p.stock ?? p.quantity ?? 0),
+      destacado: !!(p.destacado === 1 || p.destacado === true)
     };
   }
 
-  // 1) Intentar leer productos desde Android (Room) si existe el bridge
-  function cargarDesdeAndroid() {
-    if (typeof AndroidProduct !== "undefined" && AndroidProduct.getProductsJson) {
-      try {
-        const json = AndroidProduct.getProductsJson();
-        const lista = JSON.parse(json) || [];
-        return lista.map(normalizarProducto);
-      } catch (e) {
-        console.error("Error leyendo productos desde AndroidProduct:", e);
-      }
-    }
-    return [];
+  async function apiGet() {
+    const res = await fetch(API_URL);
+    if (!res.ok) throw new Error("HTTP " + res.status);
+    const lista = await res.json();
+    return (lista || []).map(normalizarProducto);
   }
 
-  // 2) Si no hay productos desde Android, usar localStorage como antes
-  function cargarDesdeLocalStorage() {
+  async function apiDelete(id) {
+    const res = await fetch(`${API_URL}?id=${id}`, { method: "DELETE" });
+    if (!res.ok && res.status !== 204) throw new Error("DELETE " + res.status);
+  }
+
+  async function apiPut(id, body) {
+    const res = await fetch(`${API_URL}?id=${id}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body)
+    });
+    if (!res.ok) throw new Error("PUT " + res.status);
+    return await res.json();
+  }
+
+  async function refresh() {
     try {
-      const raw = JSON.parse(localStorage.getItem("productos")) || [];
-      return raw.map(normalizarProducto);
+      productos = await apiGet();
+      mostrarProductos(productos);
     } catch (e) {
-      console.error("Error leyendo productos desde localStorage:", e);
-      return [];
+      contenedor.innerHTML = `<p style="color:#ccc;">No se pudo cargar productos (¿XAMPP apagado?).</p>`;
+      console.warn(e);
     }
-  }
-
-  function cargarProductosIniciales() {
-    let lista = cargarDesdeAndroid();
-    if (!lista || lista.length === 0) {
-      lista = cargarDesdeLocalStorage();
-    }
-    productos = lista;
-    mostrarProductos(productos);
   }
 
   function mostrarProductos(lista) {
     contenedor.innerHTML = "";
+
     if (!lista || lista.length === 0) {
       contenedor.innerHTML = `<p style="color:#ccc;">No hay productos disponibles.</p>`;
       return;
     }
 
-    lista.forEach((p, i) => {
+    lista.forEach((p) => {
       const card = document.createElement("div");
-      card.classList.add("producto");
+      card.className = "producto";
+      card.dataset.id = p.id;
+
       card.innerHTML = `
         <img src="${p.imagen}" alt="${p.nombre}">
         <h3>${p.nombre}</h3>
         <p class="precio">$${parseInt(p.precio).toLocaleString("es-CL")}</p>
         <p class="categoria">${p.categoria}</p>
-        <button class="add-to-cart" data-index="${i}">
-          <i class="fas fa-cart-plus"></i> Agregar
-        </button>
+
+        <button class="btn-cart" style="width:100%; margin-top:10px;">
+            <i class="fas fa-cart-plus"></i> Agregar al carrito
+          </button>
+
+        <div style="display:flex; gap:8px; margin-top:10px;">
+          <button class="btn-edit" style="flex:1;">Editar</button>
+          <button class="btn-del" style="flex:1;">Eliminar</button>
+        </div>
       `;
-      contenedor.appendChild(card);
-    });
+
+      // Editar
+      card.querySelector(".btn-edit").addEventListener("click", async (ev) => {
+        ev.stopPropagation();
+
+      card.querySelector(".btn-cart").addEventListener("click", (ev) => {
+        ev.stopPropagation();
+        agregarAlCarrito(p);
+      });
+
+        const nuevoNombre = prompt("Nombre:", p.nombre);
+        if (nuevoNombre === null) return;
+
+        const nuevoPrecioStr = prompt("Precio:", String(p.precio));
+        if (nuevoPrecioStr === null) return;
+
+        const nuevoStockStr = prompt("Stock:", String(p.stock));
+        if (nuevoStockStr === null) return;
+
+        const nuevaCategoria = prompt("Categoría:", p.categoria);
+        if (nuevaCategoria === null) return;
+
+        const nuevaImagen = prompt("URL/Imagen:", p.imagen);
+        if (nuevaImagen === null) return;
 
 
-    document.querySelectorAll(".add-to-cart").forEach((btn) => {
-      btn.addEventListener("click", (e) => {
-        const index = e.currentTarget.dataset.index;
-        const producto = lista[index];
-        if (producto) {
-          agregarAlCarrito(producto);
+        const body = {
+          nombre: nuevoNombre.trim(),
+          precio: Number(nuevoPrecioStr),
+          stock: Number(nuevoStockStr),
+          categoria: nuevaCategoria.trim(),
+          imagen: nuevaImagen.trim(),
+          destacado: p.destacado
+        };
+
+        try {
+          await apiPut(p.id, body);
+          await refresh();
+          alert("✅ Producto actualizado");
+        } catch (e) {
+          alert("❌ Error al editar: " + (e?.message || e));
         }
       });
+
+      // Eliminar
+      card.querySelector(".btn-del").addEventListener("click", async (ev) => {
+        ev.stopPropagation();
+
+        if (!confirm(`¿Eliminar "${p.nombre}"?`)) return;
+
+        try {
+          await apiDelete(p.id);
+          await refresh();
+          alert("🗑️ Eliminado");
+        } catch (e) {
+          alert("❌ Error al eliminar: " + (e?.message || e));
+        }
+      });
+
+      contenedor.appendChild(card);
     });
   }
 
-  //  Buscador
+  // Buscador
   if (inputBusqueda) {
     inputBusqueda.addEventListener("input", () => {
       const texto = inputBusqueda.value.toLowerCase();
@@ -101,24 +153,26 @@ document.addEventListener("DOMContentLoaded", () => {
       );
       mostrarProductos(filtrados);
     });
+
+    function agregarAlCarrito(producto) {
+      let carrito = JSON.parse(localStorage.getItem("carrito")) || [];
+
+      // si quieres evitar duplicados, descomenta esto:
+      // if (carrito.some(p => p.id === producto.id)) return alert("Ya está en el carrito");
+
+      carrito.push(producto);
+      localStorage.setItem("carrito", JSON.stringify(carrito));
+      actualizarContadorCarrito();
+      alert(`🛍️ "${producto.nombre}" se agregó al carrito.`);
+    }
+
+    function actualizarContadorCarrito() {
+      const carrito = JSON.parse(localStorage.getItem("carrito")) || [];
+      const contador = document.getElementById("cart-count");
+      if (contador) contador.textContent = carrito.length;
+    }
   }
 
-  // Carrito
-  function agregarAlCarrito(producto) {
-    let carrito = JSON.parse(localStorage.getItem("carrito")) || [];
-    carrito.push(producto); // ya viene normalizado con nombre, precio, imagen, categoria
-    localStorage.setItem("carrito", JSON.stringify(carrito));
     actualizarContadorCarrito();
-    alert(`🛍️ "${producto.nombre}" se agregó al carrito.`);
-  }
-
-  function actualizarContadorCarrito() {
-    const carrito = JSON.parse(localStorage.getItem("carrito")) || [];
-    const contador = document.getElementById("cart-count");
-    if (contador) contador.textContent = carrito.length;
-  }
-
-  // Inicial
-  cargarProductosIniciales();
-  actualizarContadorCarrito();
+    refresh();
 });

@@ -12,6 +12,8 @@ import androidx.lifecycle.lifecycleScope
 import com.example.tiendamanga.data.local.ProductEntity
 import com.example.tiendamanga.data.local.RoomProductRepository
 import kotlinx.coroutines.launch
+import retrofit2.Retrofit
+import retrofit2.converter.gson.GsonConverterFactory
 
 class ProductListActivity : ComponentActivity() {
 
@@ -321,5 +323,14 @@ class ProductListActivity : ComponentActivity() {
             }
             .setNegativeButton("Cancelar", null)
             .show()
+    }
+    private fun provideApi(): ApiService {
+        val baseUrl = "http://10.0.2.2/tienda_api/" // ✅ Emulador (XAMPP en tu PC)
+
+        return Retrofit.Builder()
+            .baseUrl(baseUrl)
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
+            .create(ApiService::class.java)
     }
 }
